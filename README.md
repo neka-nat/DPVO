@@ -55,6 +55,12 @@ pip install .
 ./download_models_and_data.sh
 ```
 
+## Setup with uv
+
+```bash
+export TORCH_CUDA_ARCH_LIST="8.9"
+uv sync --no-build-isolation
+```
 
 ### Recommended - Install the Pangolin Viewer
 Note: You will need to have CUDA 11 and CuDNN installed on your system.
