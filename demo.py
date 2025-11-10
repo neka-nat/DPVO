@@ -22,7 +22,7 @@ def show_image(image, t=0):
     cv2.waitKey(t)
 
 @torch.no_grad()
-def run(cfg, network, imagedir, calib, stride=1, skip=0, viz=False, timeit=False):
+def run(cfg, network, imagedir, calib, stride=1, skip=0, viz=False, viewer_backend="dpviewer", timeit=False):
 
     slam = None
     queue = Queue(maxsize=8)
@@ -43,7 +43,7 @@ def run(cfg, network, imagedir, calib, stride=1, skip=0, viz=False, timeit=False
 
         if slam is None:
             _, H, W = image.shape
-            slam = DPVO(cfg, network, ht=H, wd=W, viz=viz)
+            slam = DPVO(cfg, network, ht=H, wd=W, viz=viz, viewer_backend=viewer_backend)
 
         with Timer("SLAM", enabled=timeit):
             slam(t, image, intrinsics)
@@ -69,6 +69,7 @@ if __name__ == '__main__':
     parser.add_argument('--timeit', action='store_true')
     parser.add_argument('--viz', action="store_true")
     parser.add_argument('--plot', action="store_true")
+    parser.add_argument('--viz_backend', default="dpviewer", choices=["dpviewer", "rerun"])
     parser.add_argument('--opts', nargs='+', default=[])
     parser.add_argument('--save_ply', action="store_true")
     parser.add_argument('--save_colmap', action="store_true")
@@ -81,7 +82,17 @@ if __name__ == '__main__':
     print("Running with config...")
     print(cfg)
 
-    (poses, tstamps), (points, colors, calib) = run(cfg, args.network, args.imagedir, args.calib, args.stride, args.skip, args.viz, args.timeit)
+    (poses, tstamps), (points, colors, calib) = run(
+        cfg,
+        args.network,
+        args.imagedir,
+        args.calib,
+        args.stride,
+        args.skip,
+        args.viz,
+        args.viz_backend,
+        args.timeit,
+    )
     trajectory = PoseTrajectory3D(positions_xyz=poses[:,:3], orientations_quat_wxyz=poses[:, [6, 3, 4, 5]], timestamps=tstamps)
 
     if args.save_ply:
@@ -100,4 +111,3 @@ if __name__ == '__main__':
 
 
         
-

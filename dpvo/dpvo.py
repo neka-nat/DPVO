@@ -19,11 +19,12 @@ Id = SE3.Identity(1, device="cuda")
 
 class DPVO:
 
-    def __init__(self, cfg, network, ht=480, wd=640, viz=False):
+    def __init__(self, cfg, network, ht=480, wd=640, viz=False, viewer_backend="dpviewer"):
         self.cfg = cfg
         self.load_weights(network)
         self.is_initialized = False
         self.enable_timing = False
+        self.viewer_backend = viewer_backend
         torch.set_num_threads(2)
 
         self.M = self.cfg.PATCHES_PER_FRAME
@@ -112,7 +113,23 @@ class DPVO:
         self.network.eval()
 
     def start_viewer(self):
-        from dpviewer import Viewer
+        backend = (self.viewer_backend or "dpviewer").lower()
+        if backend == "rerun":
+            from .rerun_viewer import RerunViewer
+
+            self.viewer = RerunViewer(self)
+            return
+
+        if backend != "dpviewer":
+            raise ValueError(f"Unknown viewer backend '{self.viewer_backend}'")
+
+        try:
+            from dpviewer import Viewer
+        except ModuleNotFoundError as exc:
+            raise RuntimeError(
+                "DPViewer backend requested, but the `dpviewer` module is not available. "
+                "Install DPViewer or select `--viz_backend rerun`."
+            ) from exc
 
         intrinsics_ = torch.zeros(1, 4, dtype=torch.float32, device="cuda")
 

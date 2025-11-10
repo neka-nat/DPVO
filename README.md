@@ -82,6 +82,12 @@ pip install ./DPViewer
 
 For installation issues, our [Docker Image](https://github.com/princeton-vl/DPVO_Docker) supports the visualizer.
 
+If you only need a lightweight visualizer, you can skip the Pangolin/DPViewer build and instead install the [Rerun SDK](https://www.rerun.io/) with
+```bash
+pip install rerun-sdk
+```
+and run `demo.py --viz --viz_backend rerun` to stream poses, points, and the live image into the Rerun viewer.
+
 ### Classical Backend (optional)
 
 We provide a classical backend for closing very large loops, which requires extra installation.
@@ -106,7 +112,7 @@ pip install ./DPRetrieval
 ```
 
 ## Demos
-DPVO can be run on any video or image directory with a single command. Note you will need to have installed DPViewer to visualize the reconstructions in real-time. You can also save the completed reconstructions and view them in COLMAP. The pretrained models can be downloaded from google drive [models.zip](https://drive.google.com/file/d/1dRqftpImtHbbIPNBIseCv9EvrlHEnjhX/view?usp=sharing) if you have not already run the download script. 
+DPVO can be run on any video or image directory with a single command. Note you will need to enable either DPViewer (`--viz_backend dpviewer`, default) or the optional rerun backend (`--viz_backend rerun`) to visualize the reconstructions in real-time. You can also save the completed reconstructions and view them in COLMAP. The pretrained models can be downloaded from google drive [models.zip](https://drive.google.com/file/d/1dRqftpImtHbbIPNBIseCv9EvrlHEnjhX/view?usp=sharing) if you have not already run the download script. 
 
 
 ```bash
@@ -114,6 +120,7 @@ python demo.py \
     --imagedir=<path to image directory or video> \
     --calib=<path to calibration file> \
     --viz # enable visualization
+    --viz_backend {dpviewer,rerun} # choose the visualization backend
     --plot # save trajectory plot
     --save_ply # save point cloud as a .ply file
     --save_trajectory # save the predicted trajectory as .txt in TUM format
