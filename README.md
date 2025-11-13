@@ -37,78 +37,18 @@ Clone the repo
 git clone https://github.com/princeton-vl/DPVO.git --recursive
 cd DPVO
 ```
-Create and activate the dpvo anaconda environment
-```
-conda env create -f environment.yml
-conda activate dpvo
-```
 
-Next install the DPVO package
-```bash
+Install dependencies with uv.
+
+```
 wget https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
 unzip eigen-3.4.0.zip -d thirdparty
 
-# install DPVO
-pip install .
+export TORCH_CUDA_ARCH_LIST="8.9"
+uv sync --no-build-isolation
 
 # download models and data (~2GB)
 ./download_models_and_data.sh
-```
-
-## Setup with uv
-
-```bash
-export TORCH_CUDA_ARCH_LIST="8.9"
-uv sync --no-build-isolation
-```
-
-### Recommended - Install the Pangolin Viewer
-Note: You will need to have CUDA 11 and CuDNN installed on your system.
-
-1. Step 1: Install Pangolin (need the custom version included with the repo)
-```
-./Pangolin/scripts/install_prerequisites.sh recommended
-mkdir Pangolin/build && cd Pangolin/build
-cmake ..
-make -j8
-sudo make install
-cd ../..
-```
-
-2. Step 2: Install the viewer
-```bash
-pip install ./DPViewer
-```
-
-For installation issues, our [Docker Image](https://github.com/princeton-vl/DPVO_Docker) supports the visualizer.
-
-If you only need a lightweight visualizer, you can skip the Pangolin/DPViewer build and instead install the [Rerun SDK](https://www.rerun.io/) with
-```bash
-pip install rerun-sdk
-```
-and run `demo.py --viz --viz_backend rerun` to stream poses, points, and the live image into the Rerun viewer.
-
-### Classical Backend (optional)
-
-We provide a classical backend for closing very large loops, which requires extra installation.
-
-Step 1. Install the OpenCV C++ API. On Ubuntu, you can use
-```bash
-sudo apt-get install -y libopencv-dev
-```
-Step 2. Install DBoW2
-```bash
-cd DBoW2
-mkdir -p build && cd build
-cmake .. # tested with cmake 3.22.1 and gcc/cc 11.4.0 on Ubuntu
-make # tested with GNU Make 4.3
-sudo make install
-cd ../..
-```
-
-Step 3. Install the image retrieval
-```bash
-pip install ./DPRetrieval
 ```
 
 ## Demos
@@ -116,7 +56,7 @@ DPVO can be run on any video or image directory with a single command. Note you 
 
 
 ```bash
-python demo.py \
+uv run python demo.py \
     --imagedir=<path to image directory or video> \
     --calib=<path to calibration file> \
     --viz # enable visualization
@@ -129,19 +69,19 @@ python demo.py \
 
 ### iPhone
 ```bash
-python demo.py --imagedir=movies/IMG_0492.MOV --calib=calib/iphone.txt --stride=5 --plot --viz
+uv run python demo.py --imagedir=movies/IMG_0492.MOV --calib=calib/iphone.txt --stride=5 --plot --viz
 ```
 
 ### TartanAir
 Download a sequence from [TartanAir](https://theairlab.org/tartanair-dataset/) (several samples are availabe from download directly from the webpage)
 ```bash
-python demo.py --imagedir=<path to image_left> --calib=calib/tartan.txt --stride=1 --plot --viz
+uv run python demo.py --imagedir=<path to image_left> --calib=calib/tartan.txt --stride=1 --plot --viz
 ```
 
 ### EuRoC
 Download a sequence from [EuRoC](https://projects.asl.ethz.ch/datasets/doku.php?id=kmavvisualinertialdatasets) (download ASL format)
 ```bash
-python demo.py --imagedir=<path to mav0/cam0/data/> --calib=calib/euroc.txt --stride=2 --plot --viz
+uv run python demo.py --imagedir=<path to mav0/cam0/data/> --calib=calib/euroc.txt --stride=2 --plot --viz
 ```
 
 ## SLAM Backends
@@ -162,27 +102,27 @@ We provide evaluation scripts for TartanAir, EuRoC, TUM-RGBD and ICL-NUIM. Up to
 ### TartanAir:
 Results on the validation split and test set can be obtained with the command:
 ```
-python evaluate_tartan.py --trials=5 --split=validation --plot --save_trajectory
+uv run python evaluate_tartan.py --trials=5 --split=validation --plot --save_trajectory
 ```
 
 ### EuRoC:
 ```
-python evaluate_euroc.py --trials=5 --plot --save_trajectory
+uv run python evaluate_euroc.py --trials=5 --plot --save_trajectory
 ```
 
 ### TUM-RGBD:
 ```
-python evaluate_tum.py --trials=5 --plot --save_trajectory
+uv run python evaluate_tum.py --trials=5 --plot --save_trajectory
 ```
 
 ### ICL-NUIM:
 ```
-python evaluate_icl_nuim.py --trials=5 --plot --save_trajectory
+uv run python evaluate_icl_nuim.py --trials=5 --plot --save_trajectory
 ```
 
 ### KITTI:
 ```
-python evaluate_kitti.py --trials=5 --plot --save_trajectory
+uv run python evaluate_kitti.py --trials=5 --plot --save_trajectory
 ```
 
 ## Training
@@ -201,7 +141,7 @@ Make sure you have run `./download_models_and_data.sh`. Your directory structure
 
 To train (log files will be written to `runs/<your name>`). Model will be run on the validation split every 10k iterations
 ```
-python train.py --steps=240000 --lr=0.00008 --name=<your name>
+uv run python train.py --steps=240000 --lr=0.00008 --name=<your name>
 ```
 
 ## Change Log
